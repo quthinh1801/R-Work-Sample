@@ -1,0 +1,180 @@
+---
+title: "Alex-Thinh-Nguyen-R-Sample1"
+author: "Alex-Thinh Nguyen"
+date: "2/9/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+## Forest Fires Assignment
+```{r}
+df_forestfires = read.csv('forestfires(1).csv', na.string = "") #read csv file
+library(ggplot2)
+library(plyr)
+library(dplyr)
+library(tidyr)
+```
+
+## Forest Fires - a
+```{r Fig1 Fig2 Fig3 Fig4, echo = TRUE, fig.height=10, fig.width=12}
+
+df_forestfires$month = factor(df_forestfires$month, levels = c("jan","feb" ,"mar", "apr","may","jun", "jul", "aug","sep", "oct","nov","dec"))
+area_temp_point = ggplot(data = df_forestfires,
+                         mapping = aes(x = temp, y = area))  + geom_point(color = "indianred3") + labs(title = "Forrest Fires Area vs Temp ", caption = "Area: The burned area of the forest (in ha): 0.00 to 1090.84. 
+                         Temp: temperature in Celsius degrees: 2.2 to 33.30")
+area_month_point = ggplot(data = df_forestfires,
+                         mapping = aes(x = month, y = area)) + geom_point(color = "cornflowerblue") + labs(title = "Forrest Fires Area vs Month ", caption = "Area: The burned area of the forest (in ha): 0.00 to 1090.84. 
+                         Month: month of the year: 'jan' to 'dec'")
+area_DC_point = ggplot(data = df_forestfires,
+                         mapping = aes(x = DC, y = area)) + geom_point(color = "#55C667FF") + labs(title = "Forrest Fires Area vs DC ", caption = "Area: The burned area of the forest (in ha): 0.00 to 1090.84. 
+                         DC: DC index from the FWI system: 7.9 to 860.6")
+area_RH_point = ggplot(data = df_forestfires,
+                         mapping = aes(x = RH, y = area)) + geom_point()+ labs(title = "Forrest Fires Area vs RH ", caption = "Area: The burned area of the forest (in ha): 0.00 to 1090.84. 
+                         RH: relative humidity in %: 15.0 to 100")
+library(gridExtra)
+grid.arrange (area_temp_point,
+              area_month_point,
+              area_DC_point,
+              area_RH_point,
+              ncol = 2)
+```
+
+## Forest Fires - b
+```{r}
+windspeed = pull(select(df_forestfires,wind))
+hist(windspeed, breaks = 12, xlab = "Windspeed in km/h:", main = "Windspeed Histogram ")
+```
+## Forest Fires - c
+```{r}
+summary(windspeed)
+```
+## Forrest Fires - d
+```{r}
+hist(windspeed, probability = T, xlab = "Windspeed in km/h:", main = "Windspeed Histogram with Density Curve")
+lines(density(windspeed, adjust = 2), lwd = 2, col = "blue")
+```
+## Forest Fires - e
+```{r}
+ggplot(df_forestfires, aes (x = wind, color = month)) + geom_line(stat = "density") + labs(title = "Wind speed density function of all months", x = "Wind Speed (km/h)", y = "Density") + theme(plot.title = element_text(hjust =  0.5))
+```
+
+## Forest Fires - f
+```{r Fig1, echo = TRUE, fig.height=9, fig.width=12}
+library(GGally)
+ggpairs(select(df_forestfires, temp, RH, DC, DMC)) + labs (title = "Scatter Matrix of Temp, RH, DC, and DMC of Forest Fires")
+#Conclusion: medium negative correlation between temp and RH. Temp also hold low positive correlation with DC and DMC. Medium Positive correlation between DC and DMC. RH and DMC are nowhere near correlation--same goes for DC and RH.
+
+```
+## Forest Fires - g
+```{r Fig2, echo = TRUE, fig.height=7, fig.width=12}
+#Box plot for Forest Fires Wind
+wind = select(df_forestfires,wind)
+boxplot_wind = ggplot(data = wind, aes (y = wind)) + geom_boxplot(color = "#238A8DFF") + labs(title = "Forest Fires Wind Box Plot", caption = "Wind: windspeed in km/h: 0.40 to 9.40") + theme_bw()
+
+#Box plot for Forest Fires ISI
+ISI = select(df_forestfires,ISI)
+boxplot_ISI = ggplot(data = ISI, aes (y = ISI)) + geom_boxplot(color = "steelblue3") + labs(title = "Forest Fires ISI Box Plot", caption = "ISI: ISI index from the FWI system: 0.0 to 56.10") + theme_bw()
+
+#Box plot for Forest Fires DC
+DC = select(df_forestfires,DC)
+boxplot_DC = ggplot(data = DC, aes (y = DC)) + geom_boxplot(color = "lightcoral") + labs(title = "Forest Fires DC Box Plot", caption = "DC: DC index from the FWI system: 7.9 to 860.6") + theme_bw()
+
+grid.arrange(boxplot_ISI, boxplot_wind, boxplot_DC, ncol = 3)
+#All have outliers. For Wind and ISI, there are some data above 1.5 IQR and for DC, some outliers on boundary of -1.5 IQR.
+```
+
+## Forest Fires - h
+```{r}
+DMCHist = pull(select(df_forestfires,DMC))
+hist(DMCHist, xlab = "Forest Fires DMC", main = "Histogram of DMC ")
+hist(log(df_forestfires$DMC), xlab = "Forest Fires DMC", main = "Histogram of Log of DMC ")
+#Conclusion: histogram is left-skewed so DMC is not a perfect normal distribution. Log of DMC is, on the other hand, right-skewed
+```
+## Tweeter Account Assignment
+```{r}
+df_tweeter = read.csv('M01_quasi_twitter(1).csv', na.string = "")
+```
+
+## Tweeter Account - a
+```{r Fig3, echo = TRUE, fig.height=5, fig.width=12}
+val_friend_count = df_tweeter$friends_count
+
+ggplot(df_tweeter,aes(x=log(friends_count)))+ geom_histogram(bins = 30)+ labs(title = "Histgram of Log(Friends_
+count)")+theme(plot.title=element_text(hjust=0.5))
+
+ggplot(df_tweeter,aes(y = log(friends_count))) + geom_boxplot() + labs(title = "Boxplot of Log(Friends_count)") +theme(plot.title=element_text(hjust=0.5))
+```
+
+## Tweeter Account - b & c
+```{r}
+friends_count = pull(select(df_tweeter,friends_count))
+summary(friends_count)
+#Conclusion: not normally distributed. All ranges (including IQR) are massive. Distance between major milestones (Min, Q1,Q3, Median, Mean, Max) are too significant
+#Outliers certainly affect interpretations.The data quality is not good. From above, we can see that there are some outliers for these data, which is much greater than the mean value. Therefore, these could cause result inaccurate.
+```
+## Tweeer Account - d
+```{r Fig4, echo = TRUE, fig.height=8, fig.width=7}
+library(scatterplot3d)
+scatterplot3d(df_tweeter$created_at_year,df_tweeter$education ,df_tweeter$age,
+              pch = 17,
+              highlight.3d = TRUE,
+              type="h",
+              main="3D Scatter Plot",
+              xlab="Created at Year",
+              ylab = "Education",
+              zlab = "Age")
+```
+
+```{r}
+split.screen(c(1,2))
+screen(1)
+country = data.frame(country = c("UK","Canada","India","Australia","US"), num = c(650,1000,900,300,14900))
+piepercent = paste(round(100*country$num/sum(country$num),3), "%")
+piechart = pie(x=country$num, labels =piepercent, main = "Pie Chart of Countries",radius =0.8,col = rainbow(length(country$country)))
+legend("bottomright",country$country,fill =rainbow(length(country$country)),xpd= TRUE,cex=0.5 )
+screen(2)
+library("plotrix")
+piepercent = paste(round(100*country$num/sum(country$num),3), "%")
+pie3D(x=country$num, labels =piepercent , main = "3D Pie Chart of Countries",radius=0.8,height=0.1,
+explode = 0.3,
+col = rainbow(length(country$country)))
+legend('bottomright',country$country,fill = rainbow(length(country$country)),xpd= TRUE,cex=0.5 )
+```
+
+
+## Tweeter Account - f
+```{r}
+kernel_year = density(df_tweeter$created_at_year)
+plot(kernel_year, main = "Tweeter Account - Kernel Density Plot - Created at Year")
+polygon(kernel_year, col = "rosybrown1", border = "steelblue4")
+## From the above graph, we can see that the kernel density plot provides a more smoothing way to see the distribution compared to histogram.
+## Also ,we can see that the period between 2008 and 2017 is a peak of the user creating their account. And after 2015, the trend of user creating their account seems a decrease trend.
+```
+## Insurance Claim Assignment
+```{r}
+df_insurance = read.csv('raw_Data(1).csv', na.string = "")
+head(df_insurance) #Before
+Ndata = df_insurance
+names(Ndata)[1] = "Sustainaility"
+names(Ndata)[2] = "Carbon_Footprint"
+names(Ndata)[3] = "Weight"
+names(Ndata)[4] = "Required_Power"
+Ndata = as.data.frame(scale(Ndata[,1:4])) 
+head(Ndata) #After
+```
+## Insurance Claim - b & c & d
+```{r}
+insurance_box_1 = boxplot(df_insurance$A,df_insurance$B, df_insurance$C, df_insurance$D, names = c("Sustainability","Carbon Footprint","Weight","Required Power"), main = "Insurance Claim Original Form")
+insurance_box_2 = boxplot(Ndata$Sustainaility,Ndata$Carbon_Footprint, Ndata$Weight, Ndata$Required_Power, names = c("Sustainability","Carbon Footprint","Weight","Required Power"), main = "Insurance Claim Standardized Form")
+#Conclusion: Standardize form yield different range, median, mean, Q1, Q3, max though poses same number of outliers for each variables. After we standardized data, we can find that the each feature of data are in the same scale, which is easier to analyze the data in the future.
+```
+# Insurance Claim - e
+```{r}
+plot(Ndata$Sustainaility, Ndata$Carbon_Footprint, xlab = "Sustainability", ylab = "Carbon Footprint", main = "Insurance Claim - Sustainability and Carbon Footprint Scatter Plot")
+cat("Correlation is: ", cor(Ndata$Sustainaility, Ndata$Carbon_Footprint)) #Calculate correlation
+cor.test(x = df_insurance$A , y = df_insurance$B)
+cat("Covariance is : " ,cov(x = df_insurance$A , y = df_insurance$B))
+#Conclusion: weak negative correlation and covariance ~ almost 0 -> Sustainability and Carbon footprint are definitely not correlated.
+```
+
